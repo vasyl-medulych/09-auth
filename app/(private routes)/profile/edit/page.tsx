@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { User } from "@/types/user";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/lib/store/auth";
+import { useAuthStore } from "@/lib/store/authStore";
 import { isAxiosError } from "axios";
 
 const EditProfile = () => {
