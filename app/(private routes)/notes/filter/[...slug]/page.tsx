@@ -1,30 +1,29 @@
-import { fetchNoteById } from "@/lib/api";
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import NoteDetailsClient from "./NoteDetails.client";
+import NotesClient from "./Notes.client";
 import { Metadata } from "next";
+import { fetchNotesServer } from "@/lib/api/serverApi";
 
-interface NoteDetailsProps {
-  params: Promise<{ id: string }>;
+interface NotesProps {
+  params: Promise<{ slug: string[] }>;
 }
 
 export async function generateMetadata({
   params,
-}: NoteDetailsProps): Promise<Metadata> {
-  const { id } = await params;
-  const note = await fetchNoteById(id);
-  const title = note.title;
-  const description = note.content.slice(0, 30);
+}: NotesProps): Promise<Metadata> {
+  const { slug } = await params;
+  const title = `Notes: ${slug[0]}`;
+  const description = `Notes with tag: ${slug[0]}`;
   return {
     title,
     description,
     openGraph: {
       title,
       description,
-      url: `${process.env.NEXT_PUBLIC_SITE_URL}/notes/${id}`,
+      url: `${process.env.NEXT_PUBLIC_SITE_URL}/notes/filter/${slug[0]}`,
       siteName: title,
       images: [
         {
@@ -45,21 +44,21 @@ export async function generateMetadata({
   };
 }
 
-const NoteDetails = async ({ params }: NoteDetailsProps) => {
-  const { id: noteId } = await params;
-
+export default async function Notes({ params }: NotesProps) {
+  const resolveParams = await params;
+  const tag = resolveParams.slug?.[0];
   const queryClient = new QueryClient();
-
-  await queryClient.prefetchQuery({
-    queryKey: ["note", noteId],
-    queryFn: () => fetchNoteById(noteId),
-  });
+  const finalTag = tag === "all" ? undefined : tag;
+  if (finalTag) {
+    await queryClient.prefetchQuery({
+      queryKey: ["notes", "", 1, finalTag],
+      queryFn: () => fetchNotesServer("", 1, finalTag),
+    });
+  }
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <NoteDetailsClient />
+      <NotesClient tag={finalTag} />
     </HydrationBoundary>
   );
-};
-
-export default NoteDetails;
+}

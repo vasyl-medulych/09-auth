@@ -1,29 +1,30 @@
-import { fetchNotes } from "@/lib/api";
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import NotesClient from "./Notes.client";
+import NoteDetailsClient from "./NoteDetails.client";
 import { Metadata } from "next";
+import { fetchNoteByIdServer } from "@/lib/api/serverApi";
 
-interface NotesProps {
-  params: Promise<{ slug: string[] }>;
+interface NoteDetailsProps {
+  params: Promise<{ id: string }>;
 }
 
 export async function generateMetadata({
   params,
-}: NotesProps): Promise<Metadata> {
-  const { slug } = await params;
-  const title = `Notes: ${slug[0]}`;
-  const description = `Notes with tag: ${slug[0]}`;
+}: NoteDetailsProps): Promise<Metadata> {
+  const { id } = await params;
+  const note = await fetchNoteByIdServer(id);
+  const title = note.title;
+  const description = note.content.slice(0, 30);
   return {
     title,
     description,
     openGraph: {
       title,
       description,
-      url: `${process.env.NEXT_PUBLIC_SITE_URL}/notes/filter/${slug[0]}`,
+      url: `${process.env.NEXT_PUBLIC_SITE_URL}/notes/${id}`,
       siteName: title,
       images: [
         {
@@ -44,21 +45,21 @@ export async function generateMetadata({
   };
 }
 
-export default async function Notes({ params }: NotesProps) {
-  const resolveParams = await params;
-  const tag = resolveParams.slug?.[0];
+const NoteDetails = async ({ params }: NoteDetailsProps) => {
+  const { id: noteId } = await params;
+
   const queryClient = new QueryClient();
-  const finalTag = tag === "all" ? undefined : tag;
-  if (finalTag) {
-    await queryClient.prefetchQuery({
-      queryKey: ["notes", "", 1, finalTag],
-      queryFn: () => fetchNotes("", 1, finalTag),
-    });
-  }
+
+  await queryClient.prefetchQuery({
+    queryKey: ["note", noteId],
+    queryFn: () => fetchNoteByIdServer(noteId),
+  });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <NotesClient tag={finalTag} />
+      <NoteDetailsClient />
     </HydrationBoundary>
   );
-}
+};
+
+export default NoteDetails;

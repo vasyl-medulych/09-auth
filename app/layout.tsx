@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
 import TanstackProvider from "@/components/TanStackProvider/TanStackProvider";
+import AuthProvider from "@/components/AuthProvider/AuthProvider";
 
 const title = "NoteHub";
 const description =
@@ -15,8 +16,6 @@ const roboto = Roboto({
   variable: "--font-roboto",
   display: "swap",
 });
-
-
 
 export const metadata: Metadata = {
   title,
@@ -55,10 +54,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${roboto.variable}`}>
         <TanstackProvider>
-          <Header />
-          {children}
-          {modal}
-          <Footer />
+          <AuthProvider>
+            <Header />
+            {children}
+            {modal}
+            <Footer />
+          </AuthProvider>
         </TanstackProvider>
       </body>
     </html>

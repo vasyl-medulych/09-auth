@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { NewNote } from "../api";
+import { NewNote } from "../api/clientApi";
 import { persist } from "zustand/middleware";
 
 interface NoteDraft {
@@ -23,6 +23,9 @@ export const useNoteStore = create<NoteDraft>()(
         clearDraft: () => set({ draft: initialDraft }),
       };
     },
-    { name: "draft" }
+    {
+      name: "draft",
+      partialize: (state) => ({ draft: state.draft }),
+    }
   )
 );
