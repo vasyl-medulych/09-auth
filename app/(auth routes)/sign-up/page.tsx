@@ -8,7 +8,7 @@ import { useAuthStore } from "@/lib/store/authStore";
 const SignUp = () => {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const setUser = useAuthStore((state) => state.setAuth);
+  const setUser = useAuthStore((state) => state.setUser);
   const handleSubmit = async (formData: FormData) => {
     const userData = Object.fromEntries(formData) as unknown as UserLogin;
     try {
