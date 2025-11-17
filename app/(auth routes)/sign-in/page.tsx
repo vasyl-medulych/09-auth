@@ -3,10 +3,12 @@ import { useRouter } from "next/navigation";
 import css from "./SingInPage.module.css";
 import { login, UserLogin } from "@/lib/api/clientApi";
 import { useState } from "react";
+import { useAuthStore } from "@/lib/store/authStore";
 
 const SingInPage = () => {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const setUser = useAuthStore((state) => state.setUser);
 
   const handleSubmit = async (formData: FormData) => {
     setError(null);
@@ -15,6 +17,7 @@ const SingInPage = () => {
       const user = await login(userData);
 
       if (user) {
+        setUser(user);
         router.push("/profile");
       }
     } catch {

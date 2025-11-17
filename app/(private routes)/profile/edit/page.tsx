@@ -12,8 +12,7 @@ import { isAxiosError } from "axios";
 const EditProfile = () => {
   const [editUser, setEditUser] = useState<User | null>(null);
   const router = useRouter();
-  const setUser = useAuthStore((state) => state.setAuth);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const setUser = useAuthStore((state) => state.setUser);
 
   useEffect(() => {
     const getUserData = async () => {
@@ -34,7 +33,6 @@ const EditProfile = () => {
     try {
       if (editUser?.email) {
         const updatedUser = await updateMe({
-          email: editUser.email,
           username: newUsername,
         });
         setUser(updatedUser);
@@ -42,11 +40,9 @@ const EditProfile = () => {
       }
     } catch (error) {
       if (isAxiosError(error) && error.response) {
-        setErrorMessage(error.response.data.message);
-        toast.error(errorMessage);
+        toast.error(error.response.data.message);
       } else {
-        setErrorMessage("An unexpected error occurred");
-        toast.error(errorMessage);
+        toast.error("An unexpected error occurred");
       }
     }
   };

@@ -82,7 +82,6 @@ export async function getMe(): Promise<User> {
 }
 
 interface EditMe {
-  email: string;
   username: string;
 }
 

@@ -8,16 +8,18 @@ import { logout } from "@/lib/api/clientApi";
 
 const AuthNavigation = () => {
   const router = useRouter();
-  const { isAuth, user } = useAuthStore();
-  const clearIsAuth = useAuthStore((state) => state.clearAuth);
+  const { isAuthenticated, user } = useAuthStore();
+  const clearIsAuthenticated = useAuthStore(
+    (state) => state.clearIsAuthenticated
+  );
 
   const handleLogout = async () => {
     await logout();
-    clearIsAuth();
+    clearIsAuthenticated();
     router.push("/sign-in");
   };
 
-  if (isAuth && user) {
+  if (isAuthenticated && user) {
     return (
       <>
         <li className={css.navigationItem}>
